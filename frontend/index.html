@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexFinance Pro Terminal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { 500: '#3b82f6', 600: '#2563eb' } } } }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased flex flex-col justify-between">
+
+  <!-- ================= AUTH PAGE (Visible by Default) ================= -->
+  <section id="page-auth" class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full space-y-8 bg-slate-900/80 border border-slate-800 p-8 rounded-3xl backdrop-blur-xl shadow-2xl">
+      <div class="text-center">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-blue-500/20 mx-auto mb-4">
+          ⚡
+        </div>
+        <h2 class="text-2xl font-bold text-white">Welcome to ApexFinance</h2>
+        <p class="text-xs text-slate-400 mt-1">Sign in to access your institutional portfolio terminal</p>
+      </div>
+
+      <form id="loginForm" class="mt-8 space-y-5">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Email or Username</label>
+          <input type="text" id="authEmail" value="admin@apex.com" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
+          <input type="password" id="authPassword" value="password123" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked class="rounded bg-slate-950 border-slate-800 text-blue-600 focus:ring-0">
+            Remember me
+          </label>
+          <a href="#" class="text-blue-400 hover:underline">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all shadow-lg shadow-blue-600/25 active:scale-[0.98]">
+          Sign In to Terminal
+        </button>
+      </form>
+
+      <p class="text-center text-xs text-slate-500">
+        Demo Credentials: <span class="text-slate-300 font-mono">admin@apex.com</span> / <span class="text-slate-300 font-mono">password123</span>
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ================= MAIN APP (Hidden Until Logged In) ================= -->
+  <div id="mainApp" class="hidden min-h-screen flex flex-col justify-between">
+    
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
+      <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">⚡</div>
+          <div>
+            <h1 class="text-lg font-bold text-white leading-none">ApexFinance Pro</h1>
+            <span class="text-xs text-slate-400">Institutional Analytics Terminal</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+          <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab px-4 py-2 rounded-lg text-white bg-blue-600 transition-all">📊 Dashboard</button>
+          <button onclick="switchTab('trade')" id="tab-trade" class="nav-tab px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all">⚡ Trade Execution</button>
+          <button onclick="switchTab('simulator')" id="tab-simulator" class="nav-tab px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all">🔮 Wealth Simulator</button>
+          <button onclick="switchTab('history')" id="tab-history" class="nav-tab px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all">📜 Audit Log</button>
+        </nav>
+
+        <!-- Utility Controls -->
+        <div class="flex items-center gap-3">
+          <select id="currencySelect" class="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="INR">INR (₹)</option>
+          </select>
+
+          <!-- Logout Button -->
+          <button id="logoutBtn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors">
+            🚪 Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 w-full">
+
+      <!-- PAGE 1: DASHBOARD -->
+      <section id="page-dashboard" class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Net Portfolio Worth</p>
+            <h2 id="netWorth" class="text-3xl font-extrabold text-white mt-2">$0.00</h2>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Return (P/L)</p>
+            <h2 id="totalPL" class="text-3xl font-extrabold text-slate-300 mt-2">$0.00 (0%)</h2>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Invested Capital</p>
+            <h2 id="totalInvested" class="text-3xl font-extrabold text-white mt-2">$0.00</h2>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Diversification Index</p>
+            <div class="flex items-center justify-between mt-2">
+              <h2 id="riskScore" class="text-3xl font-extrabold text-emerald-400">85/100</h2>
+              <span id="riskBadge" class="px-2.5 py-1 text-xs rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">Balanced</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-1 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+            <h3 class="text-sm font-semibold text-slate-300 mb-4">Asset Allocation Breakdown</h3>
+            <div class="h-64 flex justify-center items-center">
+              <canvas id="allocationChart"></canvas>
+            </div>
+          </div>
+          <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+            <h3 class="text-sm font-semibold text-slate-300 mb-4">Current Asset Holdings</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-300">
+                <thead class="text-xs uppercase bg-slate-950/50 text-slate-400 border-b border-slate-800">
+                  <tr>
+                    <th class="px-4 py-3">Asset</th>
+                    <th class="px-4 py-3">Type</th>
+                    <th class="px-4 py-3">Qty</th>
+                    <th class="px-4 py-3">Avg Price</th>
+                    <th class="px-4 py-3">Live Price</th>
+                    <th class="px-4 py-3">Value</th>
+                    <th class="px-4 py-3">P/L</th>
+                  </tr>
+                </thead>
+                <tbody id="holdingsTable" class="divide-y divide-slate-800/60"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 2: TRADE EXECUTION -->
+      <section id="page-trade" class="hidden space-y-8 max-w-2xl mx-auto">
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <h3 class="text-lg font-bold text-white mb-2">Order Execution Terminal</h3>
+          <p class="text-xs text-slate-400 mb-6">Log manual stock or cryptocurrency order entries below:</p>
+
+          <div class="flex items-center gap-2 mb-6">
+            <span class="text-xs text-slate-400">Quick Fill:</span>
+            <button onclick="quickFill('BTC', 'Bitcoin', 'crypto', 65000)" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-blue-400 border border-slate-700">+ BTC</button>
+            <button onclick="quickFill('ETH', 'Ethereum', 'crypto', 3500)" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-purple-400 border border-slate-700">+ ETH</button>
+            <button onclick="quickFill('AAPL', 'Apple Inc', 'stock', 220)" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-400 border border-slate-700">+ AAPL</button>
+          </div>
+
+          <form id="txForm" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Asset Symbol</label>
+              <input type="text" id="symbol" placeholder="BTC or AAPL" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500 uppercase">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Asset Name</label>
+              <input type="text" id="name" placeholder="Bitcoin or Apple Inc" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Asset Class</label>
+                <select id="assetType" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+                  <option value="crypto">Crypto</option>
+                  <option value="stock">Stock</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Order Type</label>
+                <select id="txType" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+                  <option value="BUY">BUY</option>
+                  <option value="SELL">SELL</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Quantity</label>
+                <input type="number" step="any" id="quantity" placeholder="0.5" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Price / Unit ($)</label>
+                <input type="number" step="any" id="price" placeholder="60000" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all shadow-lg shadow-blue-600/25 active:scale-[0.98]">
+              Submit Order
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- PAGE 3: WEALTH SIMULATOR -->
+      <section id="page-simulator" class="hidden space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+            <h3 class="text-sm font-semibold text-slate-300">🔮 Compound Growth Calculator</h3>
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block text-slate-400 mb-1">Monthly Contribution ($)</label>
+                <input type="number" id="simMonthly" value="300" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Investment Horizon (Years)</label>
+                <input type="number" id="simYears" value="5" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Expected Annual Return (%)</label>
+                <input type="number" id="simReturn" value="12" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 mt-4">
+              <span class="text-xs text-slate-400 block">Projected Net Worth:</span>
+              <span id="simResult" class="text-2xl font-bold text-blue-400">$24,747.00</span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+            <h3 class="text-sm font-semibold text-slate-300 mb-4">Projected Wealth vs. Deposited Capital</h3>
+            <div class="h-64">
+              <canvas id="simChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: AUDIT LOG -->
+      <section id="page-history" class="hidden space-y-8">
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-300">Transaction Audit Log</h3>
+              <p class="text-xs text-slate-500">Complete historical record of all order executions</p>
+            </div>
+            <button id="exportCsvBtn" class="px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors">
+              📥 Export CSV Report
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="text-xs uppercase bg-slate-950/50 text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="px-4 py-3">Asset</th>
+                  <th class="px-4 py-3">Class</th>
+                  <th class="px-4 py-3">Order Type</th>
+                  <th class="px-4 py-3">Quantity</th>
+                  <th class="px-4 py-3">Executed Price</th>
+                  <th class="px-4 py-3">Total Value</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable" class="divide-y divide-slate-800/60"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
