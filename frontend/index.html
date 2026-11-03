@@ -1,278 +1,540 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ApexFinance Pro Terminal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: { colors: { brand: { 500: '#3b82f6', 600: '#2563eb' } } } }
-    }
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradePulse</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:14px;min-height:100vh;color:#a39e9e;
+font-family:'Segoe UI',Arial,sans-serif;background:#08080a;
+background-image:radial-gradient(circle at 20% -10%,#2a1219 0,transparent 45%),
+radial-gradient(circle at 90% 10%,#1d1508 0,transparent 40%)}
+.mono,table{font-family:Consolas,'Courier New',monospace}
+.hidden{display:none !important}
+.panel{background:linear-gradient(160deg,#17110f,#0f0b0d);
+border:1px solid rgba(224,169,109,.2);border-radius:16px;padding:20px;
+transition:border-color .2s,box-shadow .2s}
+.panel:hover{border-color:rgba(224,169,109,.45);
+box-shadow:0 0 28px rgba(183,110,121,.15)}
+.gold{color:#e0a96d;background:linear-gradient(135deg,#f0c8a0,#b76e79 50%,#e0a96d);
+-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo{font-size:22px;font-weight:800;letter-spacing:2px}
+.white{color:#fff}.up{color:#e0a96d}.down{color:#ff2a4b}
+.small{font-size:12px}
+.overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;
+justify-content:center;padding:16px;background:rgba(0,0,0,.94)}
+.box{width:100%;max-width:400px;display:grid;gap:14px}
+.inp{width:100%;margin-top:6px;padding:11px;color:#fff;background:#0d090b;
+border:1px solid #3a3330;border-radius:8px;font-size:14px}
+.inp:focus,.btn:focus-visible,button:focus-visible{outline:2px solid #e0a96d}
+.btn{width:100%;padding:12px;border:0;border-radius:8px;cursor:pointer;
+font-weight:700;font-size:14px;color:#000;
+background:linear-gradient(90deg,#e0a96d,#b76e79)}
+.ghost{background:none;border:1px solid #44403c;color:#d6d3d1;border-radius:8px;
+padding:7px 12px;cursor:pointer;text-decoration:none;font-size:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#0d090b;
+border-radius:10px;padding:4px;gap:4px}
+.seg button{background:none;border:0;color:#a8a29e;padding:9px;border-radius:8px;
+cursor:pointer;font-weight:600}
+.seg button.on{background:#2a1d1a;color:#e0a96d}
+header{display:flex;justify-content:space-between;align-items:center;
+gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:14px 20px}
+nav{display:flex;gap:6px;background:#0d090b;padding:4px;border-radius:12px}
+.tab{background:none;border:0;color:#a8a29e;font-weight:600;font-size:14px;
+cursor:pointer;padding:8px 16px;border-radius:9px}
+.tab.on{background:#2a1d1a;color:#e0a96d}
+.avatar{display:inline-flex;width:32px;height:32px;border-radius:50%;
+align-items:center;justify-content:center;font-weight:800;color:#000;
+background:linear-gradient(135deg,#e0a96d,#b76e79);margin-right:8px;
+vertical-align:middle}
+.ticker{display:flex;gap:10px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.chip{flex:0 0 auto;display:flex;gap:10px;align-items:center;padding:9px 14px;
+background:#0f0b0d;border:1px solid #292524;border-radius:999px;font-size:13px}
+.dot{width:8px;height:8px;border-radius:50%;background:#e0a96d;
+box-shadow:0 0 8px #e0a96d}
+.hello{font-size:26px;font-weight:700;color:#fff;margin:4px 2px 14px}
+.hero{display:grid;gap:12px;margin-bottom:12px;grid-template-columns:2fr 1fr}
+.grid3{display:grid;gap:12px;margin-bottom:12px;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.grid2{display:grid;gap:12px;margin-bottom:12px;grid-template-columns:1fr 2fr}
+.grid11{display:grid;gap:12px;margin-bottom:12px;grid-template-columns:1fr 1fr}
+@media(max-width:850px){.hero,.grid2,.grid11{grid-template-columns:1fr}}
+.networth{font-size:46px;font-weight:800;line-height:1.1;margin:6px 0}
+.big{font-size:22px;font-weight:700}
+h2{color:#fff;margin:0 0 12px;font-size:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:#78716c;padding:8px 6px;font-weight:600}
+td{padding:12px 6px;border-top:1px solid #292524}
+.scroll{overflow-x:auto}
+form.stack{display:grid;gap:14px;font-size:13px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.center{max-width:480px;margin:0 auto}
+.err{color:#ff2a4b;min-height:20px;font-size:13px}
+.chartbox{position:relative;height:240px}
+.ring{position:relative;width:150px;height:150px;margin:0 auto}
+.ring svg{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:11;stroke-linecap:round}
+.ring .bg{stroke:#292524}
+.ring .fg{transition:stroke-dashoffset 1s ease,stroke .4s}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;
+align-items:center;justify-content:center}
+.ring .num b{font-size:38px;color:#fff;line-height:1}
+ul.tips{margin:12px 0 0;padding-left:18px;font-size:13px;line-height:1.6}
+.sl{display:grid;grid-template-columns:70px 1fr 56px;gap:10px;align-items:center;
+margin:10px 0;font-size:13px}
+input[type=range]{accent-color:#e0a96d;width:100%}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;
+background:#2a1d1a;color:#e0a96d}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased flex flex-col justify-between">
+<body>
 
-  <!-- ================= AUTH PAGE (Visible by Default) ================= -->
-  <section id="page-auth" class="min-h-screen flex items-center justify-center px-4 py-12">
-    <div class="max-w-md w-full space-y-8 bg-slate-900/80 border border-slate-800 p-8 rounded-3xl backdrop-blur-xl shadow-2xl">
-      <div class="text-center">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-blue-500/20 mx-auto mb-4">
-          ⚡
-        </div>
-        <h2 class="text-2xl font-bold text-white">Welcome to ApexFinance</h2>
-        <p class="text-xs text-slate-400 mt-1">Sign in to access your institutional portfolio terminal</p>
-      </div>
-
-      <form id="loginForm" class="mt-8 space-y-5">
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Email or Username</label>
-          <input type="text" id="authEmail" value="admin@apex.com" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
-          <input type="password" id="authPassword" value="password123" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-        </div>
-
-        <div class="flex items-center justify-between text-xs text-slate-400">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked class="rounded bg-slate-950 border-slate-800 text-blue-600 focus:ring-0">
-            Remember me
-          </label>
-          <a href="#" class="text-blue-400 hover:underline">Forgot password?</a>
-        </div>
-
-        <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all shadow-lg shadow-blue-600/25 active:scale-[0.98]">
-          Sign In to Terminal
-        </button>
-      </form>
-
-      <p class="text-center text-xs text-slate-500">
-        Demo Credentials: <span class="text-slate-300 font-mono">admin@apex.com</span> / <span class="text-slate-300 font-mono">password123</span>
-      </p>
+<div id="login" class="overlay">
+  <form id="authForm" class="panel box">
+    <div class="gold logo" style="text-align:center;font-size:32px">TRADEPULSE</div>
+    <div class="small" style="text-align:center">
+      Know your portfolio's health at a glance</div>
+    <div class="seg" id="modes">
+      <button type="button" data-m="login" class="on">Sign in</button>
+      <button type="button" data-m="register">Create account</button>
     </div>
-  </section>
+    <label id="nameWrap" class="small hidden">Your name
+      <input id="name" class="inp" maxlength="40" autocomplete="name"></label>
+    <label class="small">Email or phone number
+      <input id="ident" class="inp" required maxlength="120"
+      placeholder="you@example.com or +919876543210"
+      autocomplete="username"></label>
+    <label class="small">Password
+      <input id="pw" type="password" class="inp" required minlength="8"
+      maxlength="100" autocomplete="current-password"></label>
+    <div id="authErr" class="err" role="alert"></div>
+    <button class="btn" id="authBtn">Sign in</button>
+    <div class="small" style="text-align:center">
+      Passwords need at least 8 characters.
+      Phone numbers need the country code.</div>
+  </form>
+</div>
 
+<header class="panel">
+  <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+    <span class="gold logo">TRADEPULSE</span>
+    <nav id="tabs">
+      <button class="tab" data-t="portfolio">Portfolio</button>
+      <button class="tab" data-t="trade">Trade</button>
+      <button class="tab" data-t="orders">Order book</button>
+    </nav>
+  </div>
+  <div class="small">
+    <span id="avatar" class="avatar"></span>
+    <span id="who" class="white" style="margin-right:12px"></span>
+    <button id="exit" class="ghost">Sign out</button>
+  </div>
+</header>
 
-  <!-- ================= MAIN APP (Hidden Until Logged In) ================= -->
-  <div id="mainApp" class="hidden min-h-screen flex flex-col justify-between">
-    
-    <!-- Header Navigation -->
-    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
-      <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">⚡</div>
-          <div>
-            <h1 class="text-lg font-bold text-white leading-none">ApexFinance Pro</h1>
-            <span class="text-xs text-slate-400">Institutional Analytics Terminal</span>
-          </div>
-        </div>
+<div class="ticker mono" id="ticker"></div>
 
-        <!-- Navigation Tabs -->
-        <nav class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
-          <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab px-4 py-2 rounded-lg text-white bg-blue-600 transition-all">📊 Dashboard</button>
-          <button onclick="switchTab('trade')" id="tab-trade" class="nav-tab px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all">⚡ Trade Execution</button>
-          <button onclick="switchTab('simulator')" id="tab-simulator" class="nav-tab px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all">🔮 Wealth Simulator</button>
-          <button onclick="switchTab('history')" id="tab-history" class="nav-tab px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-all">📜 Audit Log</button>
-        </nav>
+<main>
+<section id="v-portfolio">
+  <div class="hello" id="hello"></div>
 
-        <!-- Utility Controls -->
-        <div class="flex items-center gap-3">
-          <select id="currencySelect" class="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500">
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="INR">INR (₹)</option>
-          </select>
-
-          <!-- Logout Button -->
-          <button id="logoutBtn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors">
-            🚪 Logout
-          </button>
-        </div>
+  <div class="hero">
+    <div class="panel">
+      <div class="small">Net worth</div>
+      <div id="s-val" class="networth gold mono">-</div>
+      <div id="s-day" class="mono small"></div>
+    </div>
+    <div class="panel" style="text-align:center">
+      <div class="small" style="margin-bottom:8px">Pulse Score</div>
+      <div class="ring">
+        <svg width="150" height="150" viewBox="0 0 120 120">
+          <circle class="bg" cx="60" cy="60" r="52"/>
+          <circle class="fg" id="p-ring" cx="60" cy="60" r="52"
+          stroke="#e0a96d" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+        </svg>
+        <div class="num"><b id="p-score">-</b>
+          <span id="p-label" class="tag" style="margin-top:6px"></span></div>
       </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-6 py-8 w-full">
-
-      <!-- PAGE 1: DASHBOARD -->
-      <section id="page-dashboard" class="space-y-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Net Portfolio Worth</p>
-            <h2 id="netWorth" class="text-3xl font-extrabold text-white mt-2">$0.00</h2>
-          </div>
-          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Return (P/L)</p>
-            <h2 id="totalPL" class="text-3xl font-extrabold text-slate-300 mt-2">$0.00 (0%)</h2>
-          </div>
-          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Invested Capital</p>
-            <h2 id="totalInvested" class="text-3xl font-extrabold text-white mt-2">$0.00</h2>
-          </div>
-          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Diversification Index</p>
-            <div class="flex items-center justify-between mt-2">
-              <h2 id="riskScore" class="text-3xl font-extrabold text-emerald-400">85/100</h2>
-              <span id="riskBadge" class="px-2.5 py-1 text-xs rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">Balanced</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div class="lg:col-span-1 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <h3 class="text-sm font-semibold text-slate-300 mb-4">Asset Allocation Breakdown</h3>
-            <div class="h-64 flex justify-center items-center">
-              <canvas id="allocationChart"></canvas>
-            </div>
-          </div>
-          <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900/60 border border-slate-800 overflow-hidden">
-            <h3 class="text-sm font-semibold text-slate-300 mb-4">Current Asset Holdings</h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm text-slate-300">
-                <thead class="text-xs uppercase bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                  <tr>
-                    <th class="px-4 py-3">Asset</th>
-                    <th class="px-4 py-3">Type</th>
-                    <th class="px-4 py-3">Qty</th>
-                    <th class="px-4 py-3">Avg Price</th>
-                    <th class="px-4 py-3">Live Price</th>
-                    <th class="px-4 py-3">Value</th>
-                    <th class="px-4 py-3">P/L</th>
-                  </tr>
-                </thead>
-                <tbody id="holdingsTable" class="divide-y divide-slate-800/60"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PAGE 2: TRADE EXECUTION -->
-      <section id="page-trade" class="hidden space-y-8 max-w-2xl mx-auto">
-        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <h3 class="text-lg font-bold text-white mb-2">Order Execution Terminal</h3>
-          <p class="text-xs text-slate-400 mb-6">Log manual stock or cryptocurrency order entries below:</p>
-
-          <div class="flex items-center gap-2 mb-6">
-            <span class="text-xs text-slate-400">Quick Fill:</span>
-            <button onclick="quickFill('BTC', 'Bitcoin', 'crypto', 65000)" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-blue-400 border border-slate-700">+ BTC</button>
-            <button onclick="quickFill('ETH', 'Ethereum', 'crypto', 3500)" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-purple-400 border border-slate-700">+ ETH</button>
-            <button onclick="quickFill('AAPL', 'Apple Inc', 'stock', 220)" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-400 border border-slate-700">+ AAPL</button>
-          </div>
-
-          <form id="txForm" class="space-y-4">
-            <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Asset Symbol</label>
-              <input type="text" id="symbol" placeholder="BTC or AAPL" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500 uppercase">
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Asset Name</label>
-              <input type="text" id="name" placeholder="Bitcoin or Apple Inc" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Asset Class</label>
-                <select id="assetType" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-                  <option value="crypto">Crypto</option>
-                  <option value="stock">Stock</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Order Type</label>
-                <select id="txType" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-                  <option value="BUY">BUY</option>
-                  <option value="SELL">SELL</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Quantity</label>
-                <input type="number" step="any" id="quantity" placeholder="0.5" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Price / Unit ($)</label>
-                <input type="number" step="any" id="price" placeholder="60000" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500">
-              </div>
-            </div>
-            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all shadow-lg shadow-blue-600/25 active:scale-[0.98]">
-              Submit Order
-            </button>
-          </form>
-        </div>
-      </section>
-
-      <!-- PAGE 3: WEALTH SIMULATOR -->
-      <section id="page-simulator" class="hidden space-y-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
-            <h3 class="text-sm font-semibold text-slate-300">🔮 Compound Growth Calculator</h3>
-            <div class="space-y-3 text-xs">
-              <div>
-                <label class="block text-slate-400 mb-1">Monthly Contribution ($)</label>
-                <input type="number" id="simMonthly" value="300" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-slate-400 mb-1">Investment Horizon (Years)</label>
-                <input type="number" id="simYears" value="5" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-slate-400 mb-1">Expected Annual Return (%)</label>
-                <input type="number" id="simReturn" value="12" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
-              </div>
-            </div>
-            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 mt-4">
-              <span class="text-xs text-slate-400 block">Projected Net Worth:</span>
-              <span id="simResult" class="text-2xl font-bold text-blue-400">$24,747.00</span>
-            </div>
-          </div>
-
-          <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <h3 class="text-sm font-semibold text-slate-300 mb-4">Projected Wealth vs. Deposited Capital</h3>
-            <div class="h-64">
-              <canvas id="simChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PAGE 4: AUDIT LOG -->
-      <section id="page-history" class="hidden space-y-8">
-        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <h3 class="text-sm font-semibold text-slate-300">Transaction Audit Log</h3>
-              <p class="text-xs text-slate-500">Complete historical record of all order executions</p>
-            </div>
-            <button id="exportCsvBtn" class="px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors">
-              📥 Export CSV Report
-            </button>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-300">
-              <thead class="text-xs uppercase bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th class="px-4 py-3">Asset</th>
-                  <th class="px-4 py-3">Class</th>
-                  <th class="px-4 py-3">Order Type</th>
-                  <th class="px-4 py-3">Quantity</th>
-                  <th class="px-4 py-3">Executed Price</th>
-                  <th class="px-4 py-3">Total Value</th>
-                </tr>
-              </thead>
-              <tbody id="historyTable" class="divide-y divide-slate-800/60"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
+    </div>
   </div>
 
-  <script src="js/main.js"></script>
+  <div class="grid3 mono">
+    <div class="panel"><div class="small">Invested</div>
+      <div id="s-cost" class="big white">-</div></div>
+    <div class="panel"><div class="small">Unrealized P&amp;L</div>
+      <div id="s-unr" class="big">-</div></div>
+    <div class="panel"><div class="small">Realized P&amp;L</div>
+      <div id="s-real" class="big">-</div></div>
+  </div>
+
+  <div class="grid11">
+    <div class="panel"><h2>What your Pulse says</h2>
+      <ul class="tips" id="p-tips"></ul></div>
+    <div class="panel"><h2>Net worth history</h2>
+      <div class="chartbox"><canvas id="hist"></canvas></div>
+      <p id="h-note" class="small hidden">
+        History builds daily. Open TradePulse tomorrow to see your line grow.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel"><h2>Allocation</h2>
+      <div class="chartbox"><canvas id="alloc"></canvas></div></div>
+    <div class="panel scroll"><h2>Holdings</h2>
+      <table><thead><tr><th>Asset</th><th>Qty</th><th>Avg cost</th>
+      <th>Price</th><th>Value</th><th>P&amp;L</th></tr></thead>
+      <tbody id="hold"></tbody></table>
+      <p id="stale" class="small hidden">Some live prices are unavailable.
+      Those rows use your average cost.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>What if the market moves?</h2>
+    <div class="sl"><span>Crypto</span>
+      <input id="sc" type="range" min="-50" max="50" value="0">
+      <span id="scv" class="mono">0%</span></div>
+    <div class="sl"><span>Stocks</span>
+      <input id="ss" type="range" min="-50" max="50" value="0">
+      <span id="ssv" class="mono">0%</span></div>
+    <div id="st-out" class="white" style="font-size:18px"></div>
+  </div>
+</section>
+
+<section id="v-trade" class="hidden">
+  <div class="panel center">
+    <h2>Place an order</h2>
+    <form id="tradeForm" class="stack">
+      <div class="row">
+        <label>Type
+          <select id="t-type" class="inp">
+            <option value="crypto">Crypto</option>
+            <option value="stock">Stock</option>
+          </select></label>
+        <label>Side
+          <select id="t-side" class="inp">
+            <option>BUY</option><option>SELL</option>
+          </select></label>
+      </div>
+      <label>Symbol
+        <input id="t-sym" class="inp" placeholder="BTC, AAPL"
+        required maxlength="12" style="text-transform:uppercase"></label>
+      <label>Quantity
+        <input id="t-qty" type="number" step="any" min="0"
+        class="inp" required></label>
+      <label>Price (USD)
+        <input id="t-px" type="number" step="any" min="0" class="inp"
+        placeholder="Leave blank to use the live price"></label>
+      <div id="t-live" class="mono small" style="min-height:16px"></div>
+      <div id="t-err" class="err" role="alert"></div>
+      <button class="btn">Place order</button>
+    </form>
+  </div>
+</section>
+
+<section id="v-orders" class="hidden">
+  <div class="panel scroll">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <h2 style="margin:0">Order book</h2>
+      <button id="csv" class="ghost">Download CSV</button>
+    </div>
+    <table><thead><tr><th>Time (UTC)</th><th>Symbol</th><th>Side</th>
+    <th>Price</th><th>Qty</th><th>Fee</th></tr></thead>
+    <tbody id="ords"></tbody></table>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const usd = n => '$' + Number(n).toLocaleString(undefined,
+  {maximumFractionDigits: 2});
+const sign = n => (n >= 0 ? '+' : '-') + usd(Math.abs(n));
+const cls = n => (n >= 0 ? 'up' : 'down');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[c]));
+let token = localStorage.getItem('tp_token');
+let chart = null, hchart = null, timer = null, lastH = [], mode = 'login';
+
+async function api(path, opt) {
+  opt = opt || {};
+  const headers = Object.assign({'Content-Type': 'application/json'},
+    opt.headers || {});
+  if (token) headers.Authorization = 'Bearer ' + token;
+  const r = await fetch(path, Object.assign({}, opt, {headers: headers}));
+  if (r.status === 401 && token && !path.includes('/login')) signOut(true);
+  return r;
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modes button').forEach(b =>
+    b.classList.toggle('on', b.dataset.m === m));
+  $('nameWrap').classList.toggle('hidden', m !== 'register');
+  $('name').required = m === 'register';
+  $('authBtn').textContent = m === 'register' ? 'Create account' : 'Sign in';
+  $('authErr').textContent = '';
+}
+document.querySelectorAll('#modes button').forEach(b => {
+  b.onclick = () => setMode(b.dataset.m);
+});
+
+$('authForm').onsubmit = async e => {
+  e.preventDefault();
+  $('authErr').textContent = '';
+  const body = {identifier: $('ident').value, password: $('pw').value};
+  if (mode === 'register') body.name = $('name').value;
+  const r = await fetch('/api/' + mode, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const j = await r.json();
+  if (!r.ok) {
+    $('authErr').textContent = typeof j.detail === 'string'
+      ? j.detail : 'Check your details and try again.';
+    return;
+  }
+  token = j.token;
+  localStorage.setItem('tp_token', token);
+  localStorage.setItem('tp_name', j.name);
+  $('pw').value = '';
+  enter();
+};
+
+async function signOut(silent) {
+  if (!silent && token) { try { await api('/api/logout', {method: 'POST'}); } catch (e) {} }
+  token = null;
+  localStorage.removeItem('tp_token');
+  localStorage.removeItem('tp_name');
+  enter();
+}
+$('exit').onclick = () => signOut(false);
+
+function show(t) {
+  ['portfolio', 'trade', 'orders'].forEach(v =>
+    $('v-' + v).classList.toggle('hidden', v !== t));
+  document.querySelectorAll('#tabs .tab').forEach(b =>
+    b.classList.toggle('on', b.dataset.t === t));
+  clearInterval(timer);
+  if (t === 'portfolio') {
+    loadPortfolio();
+    timer = setInterval(loadPortfolio, 60000);
+  }
+  if (t === 'orders') loadOrders();
+}
+document.querySelectorAll('#tabs .tab').forEach(b => {
+  b.onclick = () => show(b.dataset.t);
+});
+
+function enter() {
+  const name = localStorage.getItem('tp_name') || '';
+  $('login').classList.toggle('hidden', !!token);
+  $('who').textContent = name;
+  $('avatar').textContent = (name[0] || '?').toUpperCase();
+  if (token) { show('portfolio'); loadTicker(); }
+}
+
+async function loadTicker() {
+  const items = [['crypto', 'BTC'], ['crypto', 'ETH'], ['crypto', 'SOL'],
+    ['stock', 'AAPL'], ['stock', 'NVDA']];
+  const res = await Promise.all(items.map(async it => {
+    try {
+      const r = await fetch('/api/price/' + it[0] + '/' + it[1]);
+      return {s: it[1], p: (await r.json()).price};
+    } catch (e) { return {s: it[1], p: null}; }
+  }));
+  $('ticker').innerHTML = res.map(x => `<div class="chip">
+    <span class="dot"></span><b class="white">${x.s}</b>
+    <span>${x.p ? usd(x.p) : 'n/a'}</span></div>`).join('');
+}
+
+function stress() {
+  const c = Number($('sc').value);
+  const s = Number($('ss').value);
+  $('scv').textContent = (c > 0 ? '+' : '') + c + '%';
+  $('ssv').textContent = (s > 0 ? '+' : '') + s + '%';
+  if (!lastH.length) {
+    $('st-out').textContent = 'Add holdings to test scenarios.';
+    return;
+  }
+  let now = 0, after = 0;
+  lastH.forEach(h => {
+    const move = h.type === 'crypto' ? c : s;
+    now += h.value;
+    after += h.value * (1 + move / 100);
+  });
+  $('st-out').innerHTML = 'Your portfolio would be ' + usd(after) +
+    ' <span class="' + cls(after - now) + '">(' +
+    sign(after - now) + ')</span>';
+}
+$('sc').oninput = stress;
+$('ss').oninput = stress;
+
+async function loadHistory() {
+  const h = await (await api('/api/history')).json();
+  $('h-note').classList.toggle('hidden', h.length > 1);
+  if (!window.Chart) return;
+  if (hchart) hchart.destroy();
+  hchart = new Chart($('hist'), {
+    type: 'line',
+    data: {
+      labels: h.map(x => x.day),
+      datasets: [{
+        data: h.map(x => x.value),
+        borderColor: '#e0a96d',
+        backgroundColor: 'rgba(224,169,109,.1)',
+        fill: true, tension: 0.3
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {legend: {display: false}},
+      scales: {
+        x: {ticks: {color: '#78716c'}, grid: {color: '#1c1917'}},
+        y: {ticks: {color: '#78716c'}, grid: {color: '#1c1917'}}
+      }
+    }
+  });
+}
+
+function greeting(name) {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  return g + ', ' + name;
+}
+
+async function loadPortfolio() {
+  const res = await api('/api/holdings');
+  if (!res.ok) return;
+  const d = await res.json();
+  lastH = d.holdings;
+  $('hello').textContent = greeting(d.name);
+  $('s-val').textContent = usd(d.total_value);
+  if (d.prev_value) {
+    const ch = d.total_value - d.prev_value;
+    $('s-day').innerHTML = '<span class="' + cls(ch) + '">' + sign(ch) +
+      '</span> since your last daily snapshot';
+  } else {
+    $('s-day').textContent = 'Daily change appears after your second day.';
+  }
+  $('s-cost').textContent = usd(d.total_cost);
+  $('s-unr').textContent = sign(d.unrealized);
+  $('s-unr').className = 'big ' + cls(d.unrealized);
+  $('s-real').textContent = sign(d.realized);
+  $('s-real').className = 'big ' + cls(d.realized);
+  const sc = d.pulse.score;
+  $('p-score').textContent = sc;
+  $('p-label').textContent = d.pulse.label;
+  const ring = $('p-ring');
+  ring.style.strokeDashoffset = 326.7 * (1 - sc / 100);
+  ring.style.stroke = sc >= 75 ? '#e0a96d' : sc >= 50 ? '#b76e79' : '#ff2a4b';
+  $('p-tips').innerHTML = d.pulse.insights
+    .map(t => '<li>' + esc(t) + '</li>').join('');
+  if (d.holdings.length) {
+    $('hold').innerHTML = d.holdings.map(h => `<tr>
+      <td class="white"><b>${esc(h.symbol)}</b>
+      <span class="tag">${esc(h.type)}</span></td>
+      <td>${+h.qty.toFixed(8)}</td>
+      <td>${usd(h.avg_cost)}</td>
+      <td>${h.live ? usd(h.price) : 'n/a'}</td>
+      <td class="white">${usd(h.value)}</td>
+      <td class="${cls(h.pnl)}">${sign(h.pnl)}
+      (${h.pnl_pct.toFixed(1)}%)</td></tr>`).join('');
+  } else {
+    $('hold').innerHTML = `<tr><td colspan="6" style="text-align:center">
+      No holdings yet. Place a buy order on the Trade tab.</td></tr>`;
+  }
+  $('stale').classList.toggle('hidden', d.holdings.every(h => h.live));
+  stress();
+  loadHistory();
+  if (!window.Chart) return;
+  if (chart) chart.destroy();
+  chart = new Chart($('alloc'), {
+    type: 'doughnut',
+    data: {
+      labels: d.holdings.map(h => h.symbol),
+      datasets: [{
+        data: d.holdings.map(h => h.value),
+        backgroundColor: ['#e0a96d', '#b76e79', '#ff2a4b',
+          '#f0c8a0', '#8c4a55', '#5c2f37'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {legend: {position: 'bottom',
+        labels: {color: '#a39e9e'}}}
+    }
+  });
+}
+
+async function loadOrders() {
+  const res = await api('/api/orders');
+  if (!res.ok) return;
+  const o = await res.json();
+  if (!o.length) {
+    $('ords').innerHTML = `<tr><td colspan="6"
+      style="text-align:center">No orders yet.</td></tr>`;
+    return;
+  }
+  $('ords').innerHTML = o.map(x => `<tr>
+    <td>${esc(x.ts)}</td>
+    <td class="white"><b>${esc(x.symbol)}</b></td>
+    <td class="${x.side === 'BUY' ? 'up' : 'down'}">
+    <b>${esc(x.side)}</b></td>
+    <td>${usd(x.price)}</td><td>${x.qty}</td>
+    <td>${usd(x.fee)}</td></tr>`).join('');
+}
+
+$('csv').onclick = async () => {
+  const r = await api('/api/orders.csv');
+  const blob = await r.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'orders.csv';
+  a.click();
+};
+
+async function liveHint() {
+  const s = $('t-sym').value.trim();
+  if (!s) { $('t-live').textContent = ''; return; }
+  const url = '/api/price/' + $('t-type').value + '/' + encodeURIComponent(s);
+  const r = await (await fetch(url)).json();
+  $('t-live').textContent = r.price
+    ? 'Live price: ' + usd(r.price)
+    : 'No live price found for this symbol.';
+}
+$('t-sym').onchange = liveHint;
+$('t-type').onchange = liveHint;
+
+$('tradeForm').onsubmit = async e => {
+  e.preventDefault();
+  $('t-err').textContent = '';
+  const body = {
+    symbol: $('t-sym').value.trim(),
+    asset_type: $('t-type').value,
+    side: $('t-side').value,
+    qty: Number($('t-qty').value)
+  };
+  if ($('t-px').value) body.price = Number($('t-px').value);
+  const r = await api('/api/orders', {
+    method: 'POST', body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const j = await r.json();
+    $('t-err').textContent = typeof j.detail === 'string'
+      ? j.detail : 'Check the symbol, quantity and price.';
+    return;
+  }
+  e.target.reset();
+  $('t-live').textContent = '';
+  show('portfolio');
+};
+
+enter();
+</script>
 </body>
 </html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusAI Terminal - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030508; color: #f1f5f9; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+    .cyber-glass {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(7, 10, 19, 0.85) 100%);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cyber-glass:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; }
+    }
+    .glow-bg { animation: pulseGlow 6s infinite ease-in-out; }
+  </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+
+  <!-- Glow Overlay -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-cyan-600/10 blur-[150px] pointer-events-none glow-bg"></div>
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-[#030508]/90 backdrop-blur-xl px-8 h-20 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-8">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-black text-white text-xl">❖</div>
+        <span class="font-black text-xl tracking-wider text-white">NEXUS<span class="text-cyan-400">AI</span></span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-2 bg-slate-900/90 border border-slate-800 p-1 rounded-2xl text-xs font-mono-code">
+        <a href="dashboard.html" class="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">TERMINAL</a>
+        <a href="holdings.html" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">PORTFOLIOS</a>
+        <a href="transactions.html" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">ORDER BOOK</a>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-4 text-xs font-mono-code">
+      <div class="hidden sm:flex items-center gap-2 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="text-slate-400">LATENCY:</span>
+        <strong class="text-white">4ms</strong>
+      </div>
+      <button class="bg-gradient-to-r from-cyan-500 to-indigo-600 font-bold text-white px-5 py-2.5 rounded-xl hover:scale-105 transition">CONNECTED</button>
+    </div>
+  </header>
+
+  <!-- Main Terminal Layout -->
+  <main class="max-w-[1700px] mx-auto p-6 space-y-6 relative z-10">
+    
+    <!-- Top Bar: Pair Switcher & Live Stats -->
+    <div class="cyber-glass rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 font-mono-code">
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl font-black text-white">BTC / USDT</span>
+          <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">+3.42%</span>
+        </div>
+        <div class="border-l border-slate-800 pl-6 text-xs">
+          <div class="text-slate-500">24H HIGH</div>
+          <div class="text-white font-bold">$68,120.00</div>
+        </div>
+        <div class="border-l border-slate-800 pl-6 text-xs">
+          <div class="text-slate-500">24H LOW</div>
+          <div class="text-white font-bold">$65,210.00</div>
+        </div>
+        <div class="border-l border-slate-800 pl-6 text-xs">
+          <div class="text-slate-500">24H VOLUME</div>
+          <div class="text-cyan-400 font-bold">14,820.50 BTC</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs">
+        <button class="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-bold">1M</button>
+        <button class="px-3 py-1.5 text-slate-400 hover:text-white">5M</button>
+        <button class="px-3 py-1.5 text-slate-400 hover:text-white">1H</button>
+        <button class="px-3 py-1.5 text-slate-400 hover:text-white">1D</button>
+      </div>
+    </div>
+
+    <!-- Main Grid: Candlestick Engine + Execution Box -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Primary Chart Engine (8 cols) -->
+      <div class="lg:col-span-8 cyber-glass rounded-3xl p-6 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-4">
+          <div class="font-mono-code text-xs text-slate-400">QUANTUM CANDLESTICK FEED</div>
+          <div class="flex gap-2 text-xs font-mono-code">
+            <span class="text-emerald-400">● EMA(20): 66,840</span>
+            <span class="text-cyan-400">● RSI(14): 64.2</span>
+          </div>
+        </div>
+
+        <div class="h-[480px] w-full">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Execution Panel & Depth (4 cols) -->
+      <div class="lg:col-span-4 space-y-6">
+        
+        <!-- Order Entry Form -->
+        <div class="cyber-glass rounded-3xl p-6 space-y-4 font-mono-code">
+          <div class="flex border-b border-slate-800 pb-3 gap-4">
+            <button class="text-emerald-400 font-extrabold border-b-2 border-emerald-400 pb-2 text-sm w-1/2 text-center">BUY / LONG</button>
+            <button class="text-slate-500 font-extrabold hover:text-rose-400 transition pb-2 text-sm w-1/2 text-center">SELL / SHORT</button>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="text-slate-400 block mb-1">ORDER TYPE</label>
+              <select class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none">
+                <option>LIMIT ORDER</option>
+                <option>MARKET ORDER</option>
+                <option>STOP LIMIT</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-slate-400 block mb-1">PRICE (USDT)</label>
+              <input type="text" value="67,420.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold focus:border-cyan-500 outline-none">
+            </div>
+
+            <div>
+              <label class="text-slate-400 block mb-1">AMOUNT (BTC)</label>
+              <input type="text" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold focus:border-cyan-500 outline-none">
+            </div>
+          </div>
+
+          <button class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black py-4 rounded-2xl text-sm transition shadow-lg shadow-emerald-500/20">
+            EXECUTE ORDER ⚡
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45'],
+        datasets: [{
+          label: 'BTC/USDT',
+          data: [66200, 66450, 66100, 66800, 67100, 66950, 67200, 67420],
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6, 182, 212, 0.08)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b' } },
+          y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

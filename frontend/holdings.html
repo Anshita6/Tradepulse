@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusAI - Portfolio Matrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030508; color: #f1f5f9; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .cyber-glass {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(7, 10, 19, 0.85) 100%);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+  </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-[#030508]/90 backdrop-blur-xl px-8 h-20 flex items-center justify-between sticky top-0 z-50">
+    <a href="index.html" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-black text-white text-xl">❖</div>
+      <span class="font-black text-xl tracking-wider text-white">NEXUS<span class="text-cyan-400">AI</span></span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-2 bg-slate-900/90 border border-slate-800 p-1 rounded-2xl text-xs font-mono-code">
+      <a href="dashboard.html" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">TERMINAL</a>
+      <a href="holdings.html" class="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">PORTFOLIOS</a>
+      <a href="transactions.html" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">ORDER BOOK</a>
+    </nav>
+
+    <button class="bg-gradient-to-r from-cyan-500 to-indigo-600 font-bold text-xs text-white px-5 py-2.5 rounded-xl">SYNC WALLETS 🔄</button>
+  </header>
+
+  <main class="max-w-[1400px] mx-auto p-6 space-y-8 relative z-10">
+    
+    <!-- Top Summary Banner -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="cyber-glass p-6 rounded-3xl space-y-2">
+        <div class="text-xs font-mono-code text-slate-500">NET WORTH</div>
+        <div class="text-4xl font-black text-white font-mono-code">$142,850.40</div>
+        <div class="text-xs font-mono-code text-emerald-400">▲ +$12,420 (24h All Time High)</div>
+      </div>
+
+      <div class="cyber-glass p-6 rounded-3xl space-y-2">
+        <div class="text-xs font-mono-code text-slate-500">BEST PERFORMER</div>
+        <div class="text-2xl font-black text-purple-400 font-mono-code">SOLANA (+18.4%)</div>
+        <div class="text-xs font-mono-code text-slate-400">Holding 120 SOL ($17,868)</div>
+      </div>
+
+      <div class="cyber-glass p-6 rounded-3xl space-y-2">
+        <div class="text-xs font-mono-code text-slate-500">CONNECTED WALLETS</div>
+        <div class="text-2xl font-black text-cyan-400 font-mono-code">3 Active Syncs</div>
+        <div class="text-xs font-mono-code text-slate-400">Binance API, MetaMask, Ledger</div>
+      </div>
+    </div>
+
+    <!-- Allocation Chart & Breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Donut Allocation (4 cols) -->
+      <div class="lg:col-span-4 cyber-glass rounded-3xl p-6 flex flex-col justify-between">
+        <h3 class="text-sm font-extrabold text-white font-mono-code mb-4">ASSET ALLOCATION</h3>
+        <div class="h-64"><canvas id="allocationChart"></canvas></div>
+      </div>
+
+      <!-- Asset Holdings Table (8 cols) -->
+      <div class="lg:col-span-8 cyber-glass rounded-3xl p-6">
+        <h3 class="text-sm font-extrabold text-white font-mono-code mb-4">BALANCES & ASSETS</h3>
+        
+        <div class="overflow-x-auto font-mono-code text-xs">
+          <table class="w-full text-left">
+            <thead class="border-b border-slate-800 text-slate-500 pb-3">
+              <tr>
+                <th class="pb-3">ASSET</th>
+                <th class="pb-3">BALANCE</th>
+                <th class="pb-3">PRICE</th>
+                <th class="pb-3">VALUE</th>
+                <th class="pb-3 text-right">24H PROFIT</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              <tr>
+                <td class="py-4 font-bold text-white flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-[10px]">₿</span> Bitcoin
+                </td>
+                <td class="py-4 text-slate-300">1.25 BTC</td>
+                <td class="py-4 text-slate-300">$67,420.00</td>
+                <td class="py-4 font-bold text-white">$84,275.00</td>
+                <td class="py-4 text-right text-emerald-400 font-bold">+$2,860.00</td>
+              </tr>
+              <tr>
+                <td class="py-4 font-bold text-white flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">Ξ</span> Ethereum
+                </td>
+                <td class="py-4 text-slate-300">11.40 ETH</td>
+                <td class="py-4 text-slate-300">$3,580.20</td>
+                <td class="py-4 font-bold text-white">$40,814.28</td>
+                <td class="py-4 text-right text-emerald-400 font-bold">+$1,640.00</td>
+              </tr>
+              <tr>
+                <td class="py-4 font-bold text-white flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">◎</span> Solana
+                </td>
+                <td class="py-4 text-slate-300">120 SOL</td>
+                <td class="py-4 text-slate-300">$148.90</td>
+                <td class="py-4 font-bold text-white">$17,868.00</td>
+                <td class="py-4 text-right text-emerald-400 font-bold">+$1,380.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const ctx = document.getElementById('allocationChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Bitcoin', 'Ethereum', 'Solana'],
+        datasets: [{
+          data: [59, 28, 13],
+          backgroundColor: ['#f97316', '#6366f1', '#a855f7'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'JetBrains Mono' } } } } }
+    });
+  </script>
+</body>
+</html>
