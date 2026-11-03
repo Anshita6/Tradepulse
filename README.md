@@ -2,7 +2,7 @@
 
 A crypto and stock portfolio tracker. Log your trades, view your holdings, and follow your portfolio's performance over time.
 
-**Live demo:** https://your-site.netlify.app
+**Live demo:** https://tradepulse-r2hj.onrender.com
 **API:** https://tradepulse-api.onrender.com/docs
 
 ## Features
